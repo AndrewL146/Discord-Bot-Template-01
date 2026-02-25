@@ -1,0 +1,177 @@
+{
+  "_comment": "DO NOT EDIT: FILE GENERATED FOR PTERODACTYL PANEL IMPORT",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-02-24T00:00:00+00:00",
+  "name": "Discord Advanced Moderation Bot",
+  "author": "you@example.com",
+  "description": "A production-ready Node.js egg for advanced Discord moderation bots with automod, anti-raid, logging, slash commands, ticketing, and analytics support.",
+  "features": null,
+  "docker_images": {
+    "ghcr.io/parkervcp/yolks:nodejs_20": "ghcr.io/parkervcp/yolks:nodejs_20",
+    "ghcr.io/parkervcp/yolks:nodejs_22": "ghcr.io/parkervcp/yolks:nodejs_22"
+  },
+  "file_denylist": [],
+  "startup": "mkdir -p data; if [ -d /mnt/server/.git ] && [ \"${AUTO_PULL}\" = \"1\" ]; then echo \"[startup] pulling latest changes\"; git pull --rebase || true; fi; if [ ! -d node_modules ] || [ \"${FORCE_INSTALL}\" = \"1\" ]; then echo \"[startup] installing dependencies\"; if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi; fi; if [ \"${RUN_MIGRATIONS}\" = \"1\" ] && npm run | grep -q \" migrate\"; then echo \"[startup] running migrations\"; npm run migrate || true; fi; echo \"[startup] launching bot\"; npm run ${BOT_SCRIPT}",
+  "config": {
+    "files": "{}",
+    "startup": "{\n    \"done\": \"Logged in as\"\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\n# Discord Advanced Moderation Bot Egg Installer\nset -euo pipefail\n\ncd /mnt/server\n\nmkdir -p data\n\necho \"[install] node version:\"\nnode -v || true\nnpm -v || true\n\nif [ -n \"${GIT_ADDRESS:-}\" ] && [ -n \"${GIT_BRANCH:-}\" ]; then\n  echo \"[install] cloning ${GIT_ADDRESS} (${GIT_BRANCH})\"\n  if [ -d .git ]; then\n    rm -rf .git\n  fi\n  git init\n  git remote add origin \"${GIT_ADDRESS}\"\n  git fetch --depth 1 origin \"${GIT_BRANCH}\"\n  git checkout -b \"${GIT_BRANCH}\" \"origin/${GIT_BRANCH}\"\nfi\n\nif [ ! -f package.json ]; then\n  echo \"[install] ERROR: package.json not found. Upload your bot source or set GIT_ADDRESS + GIT_BRANCH.\"\n  exit 10\nfi\n\nif [ -f package-lock.json ]; then\n  echo \"[install] npm ci\"\n  npm ci --omit=dev\nelse\n  echo \"[install] npm install\"\n  npm install --omit=dev\nfi\n\nif [ ! -f .env ] && [ -f .env.example ]; then\n  cp .env.example .env\n  echo \"[install] created .env from .env.example\"\nfi\n\nif [ ! -f .env ]; then\n  cat > .env <<EOF\nDISCORD_TOKEN=${DISCORD_TOKEN:-}\nCLIENT_ID=${CLIENT_ID:-}\nGUILD_ID=${GUILD_ID:-}\nOWNER_IDS=${OWNER_IDS:-}\nPREFIX=${PREFIX:-!}\nLOG_LEVEL=${LOG_LEVEL:-info}\nDATABASE_URL=${DATABASE_URL:-sqlite:./data/bot.db}\nREDIS_URL=${REDIS_URL:-}\nDASHBOARD_ENABLED=${DASHBOARD_ENABLED:-0}\nDASHBOARD_PORT=${DASHBOARD_PORT:-3000}\nEOF\n  echo \"[install] generated baseline .env\"\nfi\n\necho \"[install] complete\"",
+      "container": "ghcr.io/parkervcp/installers:debian",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Startup Script",
+      "description": "NPM script used to launch the bot process.",
+      "env_variable": "BOT_SCRIPT",
+      "default_value": "start",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|between:2,32"
+    },
+    {
+      "name": "Discord Bot Token",
+      "description": "Token from Discord Developer Portal.",
+      "env_variable": "DISCORD_TOKEN",
+      "default_value": "",
+      "user_viewable": false,
+      "user_editable": true,
+      "rules": "nullable|string|max:200"
+    },
+    {
+      "name": "Discord Client ID",
+      "description": "Application client ID.",
+      "env_variable": "CLIENT_ID",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:64"
+    },
+    {
+      "name": "Primary Guild ID",
+      "description": "Optional guild id for fast slash-command registration/testing.",
+      "env_variable": "GUILD_ID",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:64"
+    },
+    {
+      "name": "Owner IDs",
+      "description": "Comma-separated user IDs with super-admin access to bot controls.",
+      "env_variable": "OWNER_IDS",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:1024"
+    },
+    {
+      "name": "Command Prefix",
+      "description": "Legacy prefix for text commands if your bot supports it.",
+      "env_variable": "PREFIX",
+      "default_value": "!",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|between:1,5"
+    },
+    {
+      "name": "Log Level",
+      "description": "trace, debug, info, warn, error, fatal",
+      "env_variable": "LOG_LEVEL",
+      "default_value": "info",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|between:4,10"
+    },
+    {
+      "name": "Database URL",
+      "description": "Database connection string. Defaults to local SQLite file in server storage (sqlite:./data/bot.db).",
+      "env_variable": "DATABASE_URL",
+      "default_value": "sqlite:./data/bot.db",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:512"
+    },
+    {
+      "name": "Redis URL",
+      "description": "Used for distributed caching, queues, anti-raid burst controls, and cooldowns.",
+      "env_variable": "REDIS_URL",
+      "default_value": "",
+      "user_viewable": false,
+      "user_editable": true,
+      "rules": "nullable|string|max:512"
+    },
+    {
+      "name": "Enable Dashboard",
+      "description": "Set 1 to run an HTTP dashboard in the same process or worker.",
+      "env_variable": "DASHBOARD_ENABLED",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:0,1"
+    },
+    {
+      "name": "Dashboard Port",
+      "description": "Port used by dashboard if enabled.",
+      "env_variable": "DASHBOARD_PORT",
+      "default_value": "3000",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|integer|between:1,65535"
+    },
+    {
+      "name": "Auto Pull Git",
+      "description": "Pull latest commit on startup when repository exists.",
+      "env_variable": "AUTO_PULL",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:0,1"
+    },
+    {
+      "name": "Force Reinstall Dependencies",
+      "description": "Set 1 to run npm install/ci at every startup.",
+      "env_variable": "FORCE_INSTALL",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:0,1"
+    },
+    {
+      "name": "Run Migrations",
+      "description": "Set 1 to run npm run migrate at startup when script exists.",
+      "env_variable": "RUN_MIGRATIONS",
+      "default_value": "0",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|in:0,1"
+    },
+    {
+      "name": "Git Repo URL",
+      "description": "Optional repository URL to auto-clone during installation.",
+      "env_variable": "GIT_ADDRESS",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "nullable|string|max:191"
+    },
+    {
+      "name": "Git Branch",
+      "description": "Branch to clone during installation.",
+      "env_variable": "GIT_BRANCH",
+      "default_value": "main",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|max:191"
+    }
+  ]
+}
