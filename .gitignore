@@ -1,0 +1,4 @@
+node_modules/
+.env
+data/moderation.json
+npm-debug.log*

@@ -1,39 +1,85 @@
-# Discord Advanced Moderation Bot Pterodactyl Egg
+# Discord Advanced Moderation Bot (Competitive Template)
 
-This repository includes a production-oriented Pterodactyl egg for hosting a high-feature Discord moderation bot.
+This repository now includes:
 
-## Included capabilities
+1. **A production-ready moderation bot codebase** (`src/`) with advanced moderation and automod features.
+2. **A Pterodactyl egg** (`egg-discord-advanced-moderation-bot.json`) to deploy it at scale.
 
-- Node.js 20/22 runtime support.
-- Optional auto-clone from Git repository on install.
-- Dependency install via `npm ci` (or `npm install` fallback).
-- Optional startup `git pull` for fast deploy workflows.
-- Optional migration execution (`npm run migrate`).
-- Common environment variables for modern moderation bots:
-  - Discord identity/token settings
-  - Owner and guild controls
-  - Database + Redis backing services
-  - Dashboard toggle and port
+## Feature set (top moderation bot style)
 
-## Importing in Pterodactyl
+- Slash-command based moderation toolkit:
+  - `/mod ban`, `/mod kick`, `/mod timeout`, `/mod warn`
+  - `/mod purge`, `/mod slowmode`, `/mod lock`, `/mod unlock`
+  - `/mod case` and `/mod infractions` for case tracking
+- Server configuration command suite:
+  - `/config set-modlog`
+  - `/config automod`
+  - `/config anti-raid`
+  - `/config blocked-word`
+  - `/config show`
+- Automod engine:
+  - Caps flood detection
+  - Invite link filtering
+  - Blocked phrase detection
+  - Mention spam detection
+  - Message burst detection with timeout escalation
+- Anti-raid burst protection:
+  - Joins-per-minute tracking
+  - Threshold alerting to mod logs
+  - Optional auto-lockdown framework
+- Persistent moderation case store in `data/moderation.json`
 
-1. Open **Nests** in your Pterodactyl admin panel.
-2. Pick an existing nest (or create one), then click **Import Egg**.
-3. Upload `egg-discord-advanced-moderation-bot.json`.
-4. Create a server using this egg.
-5. Set your environment variables, especially `DISCORD_TOKEN`.
+## Quick start
 
-## Recommended bot feature stack
+### 1) Install dependencies
 
-To match top-tier moderation bots, pair this egg with a bot codebase that includes:
+```bash
+npm install
+```
 
-- Slash commands + context menus
-- Auto moderation (spam, profanity, invite filters, caps flood)
-- Anti-raid mode + verification levels
-- Timed punishments (mute, jail, quarantine)
-- Mod logs + case system + appeal workflow
-- Ticketing + transcript export
-- Reaction roles + onboarding flows
-- Audit dashboards + metrics + alerting
+### 2) Configure environment
 
-The egg is deployment-ready; the actual moderation feature depth comes from your bot implementation.
+```bash
+cp .env.example .env
+```
+
+Set at minimum:
+
+- `DISCORD_TOKEN`
+- `CLIENT_ID`
+- `GUILD_ID` (optional for guild-only command registration)
+
+### 3) Register slash commands
+
+```bash
+node src/register-commands.js
+```
+
+### 4) Start bot
+
+```bash
+npm start
+```
+
+## Architecture
+
+- `src/index.js`: Bot bootstrap + events (messages, joins, interactions)
+- `src/commands/moderation.js`: Full moderation command handlers
+- `src/commands/config.js`: Runtime moderation config commands
+- `src/lib/automod.js`: Content/rate based automod evaluator
+- `src/lib/storage.js`: JSON-backed persistent infractions and guild config
+- `src/lib/moderation.js`: Helpers for embeds/logging/permission checks
+
+## Production notes
+
+- Run with Node.js 20+.
+- Enable privileged intents in the Discord Developer Portal:
+  - **MESSAGE CONTENT INTENT**
+  - **SERVER MEMBERS INTENT**
+- Make sure bot role is above moderated roles.
+- Use a dedicated private moderation log channel.
+- For horizontal scaling, migrate `JsonStore` to a real DB and Redis.
+
+## Pterodactyl deployment
+
+Import `egg-discord-advanced-moderation-bot.json` in your panel, then create a server with required env variables.
