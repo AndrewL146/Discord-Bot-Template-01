@@ -1,0 +1,18 @@
+{
+  "name": "discord-advanced-moderation-bot",
+  "version": "1.0.0",
+  "description": "Full-featured Discord moderation bot template with automod, anti-raid, case management, and moderation slash commands.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node --check src/index.js && node --check src/lib/storage.js && node --check src/lib/logger.js && node --check src/lib/moderation.js && node --check src/lib/automod.js && node --check src/lib/command-sync.js && node --check src/commands/moderation.js && node --check src/commands/config.js && node --check src/commands/index.js && node --check src/register-commands.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5"
+  }
+}
